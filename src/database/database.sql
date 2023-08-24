@@ -33,7 +33,7 @@ CREATE TABLE likes_dislikes(
     FOREIGN KEY (post_id) REFERENCES posts(id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
-SELECT * FROM likes_dislikes;
+SELECT * FROM users;
 
 INSERT INTO users(id, name, email, password, role)
 VALUES("u001","Renan", "renan@hotmail.com", "asduihas8we","admin" ),
@@ -53,3 +53,4 @@ VALUES("u001", "p001",5),
 ("u002", "p003",50);
 
 DROP TABLE users
+
