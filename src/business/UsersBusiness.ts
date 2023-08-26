@@ -103,8 +103,14 @@ export class UsersBusiness {
       role: userDB.role
     }
 
-    const token = this.TokenManager.createToken (payload)
-    
+    if(!payload){
+      throw new BadRequestError("Token inválido")
+    }
+
+    const token = this.TokenManager.createToken(payload)
+
+    console.log(payload)
+
 
     const output: LoginOutputDTO = {
       message: "Login realizado com sucesso",
@@ -113,4 +119,5 @@ export class UsersBusiness {
 
     return output
   }
+  
 }

@@ -15,6 +15,7 @@ export class UsersController {
       try {
         const input = GetUsersSchema.parse({
           q: req.query.q
+          
         })
   
         const output = await this.userBusiness.getUsers(input)

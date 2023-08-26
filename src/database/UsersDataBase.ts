@@ -22,6 +22,16 @@ export class UsersDatabase extends BaseDatabase {
   
       return usersDB
     }
+
+    public async findAllUsers(): Promise<UserDB[]> {
+      
+        const result: UserDB[] = await BaseDatabase
+          .connection(UsersDatabase.TABLE_USERS)
+  
+      return result
+    }
+
+   
   
     public async findUserById(id: string): Promise<UserDB | undefined> {
       const [userDB]: UserDB[] | undefined[] = await BaseDatabase
@@ -44,4 +54,6 @@ export class UsersDatabase extends BaseDatabase {
         .connection(UsersDatabase.TABLE_USERS)
         .insert(newUserDB)
     }
+
+
   }

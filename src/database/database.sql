@@ -19,9 +19,11 @@ CREATE TABLE posts (
     likes INTEGER,
     dislikes INTEGER,
     created_at TEXT DEFAULT (DATETIME('now', 'localtime')),
-    update_at TEXT DEFAULT (DATETIME('now', 'localtime')),
+    updated_at TEXT DEFAULT (DATETIME('now', 'localtime')),
     FOREIGN KEY (creator_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 )
+
+
 
 SELECT * FROM posts;
 
@@ -52,5 +54,6 @@ VALUES("u001", "p001",5),
 ("u003", "p002",1),
 ("u002", "p003",50);
 
-DROP TABLE users
+DROP TABLE likes_dislikes
+
 
