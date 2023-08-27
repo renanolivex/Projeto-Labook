@@ -6,7 +6,7 @@ import { BaseError } from "../errors/BaseError"
 import { EditPostSchema } from "../dtos/post/editPost.dto"
 import { DeletePostSchema } from "../dtos/post/deletePost.dto"
 import { GetPostSchema } from "../dtos/post/getPost.dto"
-import { LikeDislikeSchema } from "../dtos/post/likeanddislike.dto"
+import { LikeDislikeOutputDTO, LikeDislikeSchema } from "../dtos/post/likeanddislike.dto"
 
 
 
@@ -82,7 +82,7 @@ export class PostsController {
         }
     }
 
-    public deletePosts =async(req:Request, res: Response) =>{
+    public deletePosts =async(req:Request, res: Response):Promise<void> =>{
         try {
             const input = DeletePostSchema.parse({
                 id:req.params.id,
@@ -117,8 +117,13 @@ export class PostsController {
 
             res.status(201).send("Reação alterada com sucesso!")
         } catch (error) {
-
-            res.status(500).send("Erro inesperado")
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("Erro inesperado")
+            }
             
         }
     }

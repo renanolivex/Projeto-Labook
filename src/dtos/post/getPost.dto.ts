@@ -1,11 +1,14 @@
  import z from "zod"
+import { GetPostsModel } from "../../models/Posts"
+
+
 
 
 export interface GetPostDTO {
   token:string
 }
 
-
+ export type GetPostsOutputDTO = GetPostsModel[] 
 
 
 

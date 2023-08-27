@@ -104,3 +104,8 @@ export enum USER_ROLES {
             createdAt: this.createdAt
         }
     }}
+
+    export interface GetPostsFromUser{
+        id:string,
+        name:string
+      }

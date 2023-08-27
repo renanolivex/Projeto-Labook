@@ -4,6 +4,7 @@ import { PostsBusiness } from "../business/PostsBusiness"
 import { PostsDataBase } from "../database/PostsDataBase"
 import { IdGeneratorPost } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
+import { UsersDatabase } from "../database/UsersDataBase"
 
 export const postsRouter = express.Router()
 
@@ -11,7 +12,9 @@ const postsController = new PostsController(
     new PostsBusiness(
         new PostsDataBase(),
         new IdGeneratorPost(),
-        new TokenManager()
+        new TokenManager(),
+        new UsersDatabase
+        
   
     )
 )

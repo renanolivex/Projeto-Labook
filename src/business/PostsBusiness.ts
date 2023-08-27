@@ -4,13 +4,14 @@ import { UsersDatabase } from "../database/UsersDataBase"
 import { CreatePostDTO } from "../dtos/post/createPost.dto"
 import { EditPostDTO } from "../dtos/post/editPost.dto"
 import { POST_EXISTS_LIKE, Posts, PostsDB, likeDeslikeDB } from "../models/Posts"
-import { TokenPayload, UserDB } from "../models/Users"
+import {  UserDB } from "../models/Users"
 import {  IdGeneratorPost } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
 import { BadRequestError } from "../errors/BadRequestError"
 import { DeletePostDTO } from "../dtos/post/deletePost.dto"
 import { LikeDislikeOutputDTO, LikeDislikeinputDTO } from "../dtos/post/likeanddislike.dto"
-import { GetPostDTO } from "../dtos/post/getPost.dto"
+import { GetPostDTO, GetPostsOutputDTO} from "../dtos/post/getPost.dto"
+import { NotFoundError } from "../errors/NotFoundError"
 
 
 
@@ -20,23 +21,75 @@ export class PostsBusiness{
     constructor(
         private postsDatabase: PostsDataBase,
         private IdGenerator: IdGeneratorPost,
-        private tokenManager: TokenManager
+        private tokenManager: TokenManager,
+        private usersDatabase: UsersDatabase
   
     ){}
 
-    public getAllPosts = async (input:GetPostDTO)=> {
+    public getAllPosts = async (input:GetPostDTO):Promise<GetPostsOutputDTO>=> {
         const {token} = input
         
 
         const payload = this.tokenManager.getPayLoad(token)
 
         if(!payload){
-            throw new Error ("Não foi adicionado um token válido")
+            throw new BadRequestError ("Não foi adicionado um token válido")
         }
+        
 
         const postsData = await this.postsDatabase.getAllPosts()
 
-        return postsData
+        const getUsers = await this.usersDatabase.findAllUsers()
+    
+
+
+
+    const getUsersId = getUsers.map((found)=>found.id)
+
+     console.log(getUsersId)
+
+     const getPost = postsData.map((postsDB) => {
+        const post = new Posts(
+          postsDB.id,
+          postsDB.creator_id,
+          postsDB.content,
+          postsDB.likes,
+          postsDB.dislikes,
+          postsDB.created_at,
+          postsDB.updated_at
+        );
+        return post.toDBModel();
+      });
+
+      const getPostCreatorId = getPost.map((posts)=>posts.creator_id)
+
+      const userName: any = []
+
+    for (let i = 0; i < getPostCreatorId.length; i++) {
+      const result = await this.usersDatabase.returnUserName(
+        getPostCreatorId[i]
+      );
+
+      userName.push(result);
+    }
+
+        const getPosts = postsData.map((post, index) => {
+            const newPost = {
+              id: post.id,
+              content: post.content,
+              likes: post.likes,
+              dislikes: post.dislikes,
+              createdAt: post.created_at,
+              updatedAt: post.updated_at,
+              creator: {
+                id: post.creator_id,
+                name:userName[index],
+              }
+            }
+            return newPost
+        })
+       const output:GetPostsOutputDTO = getPosts
+        return output
     }
 
 
@@ -45,12 +98,12 @@ export class PostsBusiness{
         const {content, token} = input
       
         if(!content) {
-            throw new Error ("Não foi adicionado um post válido")
+            throw new BadRequestError ("Não foi adicionado um post válido")
         }
 
         const payload = this.tokenManager.getPayLoad(token)
         if(!payload){
-            throw new Error ("Não foi adicionado um token válido")
+            throw new BadRequestError ("Não foi adicionado um token válido")
         }
         console.log(payload?.id)
         const id = this.IdGenerator.generateId()
@@ -67,9 +120,6 @@ export class PostsBusiness{
 
         await this.postsDatabase.createNewPost(newPost.toDBModel())
 
-        
-
-
     }
 
 
@@ -80,13 +130,13 @@ export class PostsBusiness{
      
         const payload = this.tokenManager.getPayLoad(token)
         if(!payload){
-            throw new Error ("Não foi adicionado um token válido")
+            throw new BadRequestError ("Não foi adicionado um token válido")
         }
 
         const allPosts: PostsDB[] = await this.postsDatabase.getAllPosts()
         const postIdExists = allPosts.find(element => element.id ===id)
         if(!postIdExists?.id){
-            throw new Error ("Id do post não encontrado")
+            throw new NotFoundError ("Id do post não encontrado")
         }
 
         const today = new Date().toISOString()
@@ -121,12 +171,12 @@ export class PostsBusiness{
        
         const payload = this.tokenManager.getPayLoad(token)
         if(!payload){
-            throw new Error ("Não foi adicionado um token válido")
+            throw new BadRequestError ("Não foi adicionado um token válido")
         }
         const allPosts: PostsDB[] = await this.postsDatabase.getAllPosts()
         const postIdExists = allPosts.find(element => element.id ===id)
         if(!postIdExists?.id){
-            throw new Error ("Id do post não encontrado")
+            throw new NotFoundError ("Id do post não encontrado")
         }
         const allCreator = new UsersDatabase()
         const searchCreator:UserDB[]= await allCreator.findAllUsers()
@@ -154,10 +204,10 @@ export class PostsBusiness{
         const allPosts: PostsDB[] = await this.postsDatabase.getAllPosts()
         const postIdExists = allPosts.find(element => element.id ===id)
         if(!postIdExists?.id){
-            throw new Error ("Id do post não encontrado")
+            throw new NotFoundError ("Id do post não encontrado")
         }
 
-        const likeOrDislike = like? 1:0;
+      
     
         const postDB = new Posts(
             postIdExists.id,
@@ -169,6 +219,7 @@ export class PostsBusiness{
             postIdExists.updated_at
         )
 
+        const likeOrDislike = like? 1:0
        
         const inputLike:likeDeslikeDB={
             user_id:payload.id,
@@ -176,28 +227,30 @@ export class PostsBusiness{
             like: likeOrDislike
         }
 
-        const likeDislikeExists = await this.postsDatabase.findIfExistLikeDislike(inputLike)
+        const likeDislikeExists = await this.postsDatabase.findIfExistLikeDislike(inputLike)     
+        console.log(likeDislikeExists)
         
     
         if(likeDislikeExists === POST_EXISTS_LIKE.LIKED){
              if(like){
                 await this.postsDatabase.removeLD(inputLike)
                 postDB.removeLike()
-            }else {
+            }else{
                 await this.postsDatabase.updateLD(inputLike)
                 postDB.removeLike()
                 postDB.addDislikes()
-            }
-  
-            }else if (likeDislikeExists=== POST_EXISTS_LIKE.DISLIKED) {
-                if(like){
+            } }
+            
+            else if (likeDislikeExists===POST_EXISTS_LIKE.DISLIKED) {
+                if(like==false){
+                    await this.postsDatabase.removeLD(inputLike)
+                    postDB.removeDislikes()
+                   
+                }
+                else{
                     await this.postsDatabase.updateLD(inputLike)
                     postDB.removeDislikes()
                     postDB.addLike()
-                }
-                else{
-                    await this.postsDatabase.removeLD(inputLike)
-                    postDB.removeLike()
                 }
 
             }else{
@@ -209,4 +262,3 @@ export class PostsBusiness{
             await this.postsDatabase.editNewPost(updateLikeDislike)
         }
     }
-

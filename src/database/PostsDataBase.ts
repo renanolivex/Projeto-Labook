@@ -8,9 +8,7 @@ export class PostsDataBase extends BaseDatabase{
     private static POST_TABLE_LIKES = "likes_dislikes"
 
     public getAllPosts = async (): Promise <PostsDB[]> => {
-        const result: PostsDB[] = await BaseDatabase.connection(PostsDataBase.POST_TABLE).select("id", "creator_id","content", "likes","dislikes","created_at AS createdAt", "updated_at AS updatedAt")
-        
-
+        const result: PostsDB[] = await BaseDatabase.connection(PostsDataBase.POST_TABLE)
         return result
         
     }
@@ -32,7 +30,7 @@ export class PostsDataBase extends BaseDatabase{
 
     public findIfExistLikeDislike =async (inputLike:likeDeslikeDB): Promise <POST_EXISTS_LIKE | undefined> =>{
 
-        const [existsOrNot]: Array<likeDeslikeDB> = await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).select().where({user_id: inputLike?.user_id, post_id: inputLike?.post_id})
+        const [existsOrNot]: Array<likeDeslikeDB> = await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).select().where({user_id: inputLike.user_id, post_id: inputLike.post_id})
 
         if(existsOrNot === undefined){
 

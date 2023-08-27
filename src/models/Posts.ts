@@ -1,4 +1,4 @@
-import { USER_ROLES } from "./Users"
+import { GetPostsFromUser, USER_ROLES } from "./Users"
 
 export class Posts{
     constructor(
@@ -92,8 +92,30 @@ export class Posts{
             updated_at: this.updatedAt
         }
     }
+
+    
 }
 
+export interface PostsModel {
+  id: string;
+  creatorId: string;
+  content: string;
+  likes: number;
+  dislike: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+ export interface GetPostsModel {
+  id: string;
+  content: string;
+  likes: number;
+  dislikes: number;
+  createdAt: string;
+  updatedAt: string;
+  creator: GetPostsFromUser;
+}
+ 
 export interface PostsDB {
 
  id: string,

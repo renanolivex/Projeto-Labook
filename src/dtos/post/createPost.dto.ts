@@ -1,12 +1,12 @@
 import z from "zod"
-import { Posts } from "../../models/Posts"
+
 
 export interface CreatePostDTO {
   content:string,
   token:string
 }
 
-export type GetPostOutputDTO = Posts[]
+
 
 
 export const CreatePostSchema = z.object({

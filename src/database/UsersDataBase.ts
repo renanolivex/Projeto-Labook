@@ -56,4 +56,11 @@ export class UsersDatabase extends BaseDatabase {
     }
 
 
+    public async returnUserName(id: string): Promise<string> {
+      const [userDB]: UserDB[] = await BaseDatabase.connection(
+        UsersDatabase.TABLE_USERS
+      ).where({ id });
+
+      return userDB.name;
+    }
   }
