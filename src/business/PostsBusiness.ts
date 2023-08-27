@@ -13,7 +13,7 @@ import { LikeDislikeOutputDTO, LikeDislikeinputDTO } from "../dtos/post/likeandd
 import { GetPostDTO, GetPostsOutputDTO} from "../dtos/post/getPost.dto"
 import { NotFoundError } from "../errors/NotFoundError"
 
-
+   
 
 
 export class PostsBusiness{
