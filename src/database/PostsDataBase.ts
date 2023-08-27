@@ -30,7 +30,7 @@ export class PostsDataBase extends BaseDatabase{
 
     public findIfExistLikeDislike =async (inputLike:likeDeslikeDB): Promise <POST_EXISTS_LIKE | undefined> =>{
 
-        const [existsOrNot]: Array<likeDeslikeDB> = await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).select().where({user_id: inputLike.user_id, post_id: inputLike.post_id})
+        const [existsOrNot]: Array<likeDeslikeDB> = await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).select().where({user_id:inputLike.user_id, post_id: inputLike.post_id})
 
         if(existsOrNot === undefined){
 
@@ -41,6 +41,10 @@ export class PostsDataBase extends BaseDatabase{
         }else return POST_EXISTS_LIKE.DISLIKED
     }
 
+    public addLD = async(inputLike: likeDeslikeDB):Promise<void>=>{
+        await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).insert(inputLike)
+    } 
+
     public removeLD = async (inputLike: likeDeslikeDB): Promise <void>=>{
         await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).delete().where({user_id:inputLike.user_id, post_id:inputLike.post_id})
     }
@@ -49,9 +53,7 @@ export class PostsDataBase extends BaseDatabase{
         await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).update(inputLike).where({user_id:inputLike.user_id, post_id: inputLike.post_id })
     }
 
-    public addLD = async(inputLike: likeDeslikeDB):Promise<void>=>{
-        await BaseDatabase.connection(PostsDataBase.POST_TABLE_LIKES).insert(inputLike)
-    } 
+  
 } 
 
 
