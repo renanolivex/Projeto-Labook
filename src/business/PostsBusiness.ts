@@ -207,7 +207,7 @@ export class PostsBusiness{
             throw new NotFoundError ("Id do post não encontrado")
         }
 
-      
+        const likeOrDislike = like? 1:0
     
         const postDB = new Posts(
             postIdExists.id,
@@ -219,7 +219,10 @@ export class PostsBusiness{
             postIdExists.updated_at
         )
 
-        const likeOrDislike = like? 1:0
+           
+       
+
+      
        
         const inputLike:likeDeslikeDB={
             user_id:payload.id,
@@ -229,6 +232,7 @@ export class PostsBusiness{
 
         const likeDislikeExists = await this.postsDatabase.findIfExistLikeDislike(inputLike)     
         console.log(likeDislikeExists)
+        
         
     
         if(likeDislikeExists === POST_EXISTS_LIKE.LIKED){
@@ -240,12 +244,13 @@ export class PostsBusiness{
                 postDB.removeLike()
                 postDB.addDislikes()
             } }
-            
+
             else if (likeDislikeExists===POST_EXISTS_LIKE.DISLIKED) {
-                if(like==false){
+                if(like===false){
+                   
                     await this.postsDatabase.removeLD(inputLike)
                     postDB.removeDislikes()
-                   
+                    
                 }
                 else{
                     await this.postsDatabase.updateLD(inputLike)
@@ -255,7 +260,7 @@ export class PostsBusiness{
 
             }else{
                 await this.postsDatabase.addLD(inputLike)
-                like? postDB.addLike() : postDB.addDislikes
+                like? postDB.addLike() : postDB.addDislikes()
             }
   
             const updateLikeDislike = postDB.toDBModel()
