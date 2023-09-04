@@ -36,9 +36,9 @@ export class PostsDataBase extends BaseDatabase{
 
             return undefined
             
-        }else if (existsOrNot.like ===1){
+        }else if (existsOrNot.like === 1){
             return POST_EXISTS_LIKE.LIKED
-        }else return POST_EXISTS_LIKE.DISLIKED
+        }else if(existsOrNot.like === 0)return POST_EXISTS_LIKE.DISLIKED
     }
 
     public addLD = async(inputLike: likeDeslikeDB):Promise<void>=>{
